@@ -1,0 +1,6 @@
+openai
+google-genai
+anthropic
+mistralai
+python-dotenv
+cryptography
