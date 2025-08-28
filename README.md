@@ -4,6 +4,8 @@ A benchmark to evaluate search-augmented LLMs.
 
 In addition to the dataset, the repository provides a simple evaluation script that supports most frontier models out of the box (including Reka, Google, OpenAI, Perplexity, Anthropic, XAI, and Mistral).
 
+Check out our [blogpost](https://reka.ai/news/introducing-research-eval-a-benchmark-for-search-augmented-llms) for more details.
+
 
 ## Setup
 
