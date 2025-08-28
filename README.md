@@ -87,6 +87,6 @@ To reproduce the results in the leaderboard, run the following script:
 
 ## License
 
-The content of this repository is licensed under a [Modified MIT License](#LICENSE).
+The content of this repository is licensed under a [Modified MIT License](LICENSE).
 
 The dataset is distributed in encrypted form to prevent contamination, and our license prohibits redistributing it in decrypted or plain-text form.
