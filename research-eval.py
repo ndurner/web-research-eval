@@ -60,7 +60,7 @@ def generate_openai(prompt, model, api_key, base_url=None, extra_body=None):
     return message
 
 
-def generate_openai_responses(prompt, model, api_key, use_web_search=False, base_url=None):
+def generate_openai_responses(prompt, model, api_key, use_web_search=False, base_url=None, reasoning_effort=None):
     """Generate using OpenAI Responses API, with optional web_search tool.
 
     Args:
@@ -79,6 +79,9 @@ def generate_openai_responses(prompt, model, api_key, use_web_search=False, base
         'model': model,
         'input': prompt,
     }
+    # Only include reasoning when explicitly requested via CLI
+    if reasoning_effort is not None:
+        create_kwargs['reasoning'] = {'effort': reasoning_effort}
     if use_web_search:
         create_kwargs['tools'] = [{'type': 'web_search'}]
         # Let the model decide when to use tools
@@ -278,6 +281,7 @@ def add_generate_args(parser, default_api=None, default_model=None):
     parser.add_argument('--concurrency', default=30, type=int, help='Number of concurrent calls')
     parser.add_argument('--trials', default=6, type=int, help='How many times to retry for failed requests')
     parser.add_argument('--web-search', action='store_true', help='Enable web_search tool when supported (OpenAI Responses)')
+    parser.add_argument('--reasoning-effort', choices=['low', 'medium', 'high'], help='Reasoning effort for OpenAI Responses (low|medium|high)')
 
 
 def add_io_args(parser, input=True, output=True, default_input=None, default_output=None):
@@ -323,16 +327,21 @@ def main():
             print(f'API key not found, please set the following environment variable: {api_var}', file=sys.stderr)
             sys.exit(-1)
 
-        # Wire optional web_search for OpenAI Responses; warn if requested for Chat Completions
+        # Wire optional web_search and reasoning_effort for OpenAI Responses; warn when unsupported
         if args.api == 'openai-responses':
-            if args.web_search:
-                def generate(prompt, model, api_key):
-                    return generate_openai_responses(prompt, model, api_key, use_web_search=True)
-            else:
-                generate = base_generate
+            def generate(prompt, model, api_key):
+                return generate_openai_responses(
+                    prompt,
+                    model,
+                    api_key,
+                    use_web_search=bool(args.web_search),
+                    reasoning_effort=args.reasoning_effort,
+                )
         else:
             if args.web_search and args.api == 'openai':
                 print('Note: --web-search is only supported with OpenAI Responses; ignoring for Chat Completions', file=sys.stderr)
+            if args.reasoning_effort is not None:
+                print('Note: --reasoning-effort is only supported with OpenAI Responses; ignoring for this API', file=sys.stderr)
             generate = base_generate
 
     if args.command == 'generate':

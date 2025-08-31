@@ -52,16 +52,17 @@ python research-eval.py generate \
     -o experiments/openai-chat.out.jsonl
 ```
 
-OpenAI via Responses API, optionally with web_search:
+OpenAI via Responses API, optionally with web_search and reasoning effort:
 
 ```bash
 python research-eval.py generate \
     --api openai-responses \
     --model gpt-5-mini \
     --web-search \
+    --reasoning-effort low \
     -o experiments/openai-responses-web.out.jsonl
 ```
-Note: `--web-search` is only supported with the OpenAI Responses API in this script.
+Note: `--web-search` and `--reasoning-effort` are only supported with the OpenAI Responses API in this script.
 
 Exa Answer API:
 
