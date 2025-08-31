@@ -24,6 +24,7 @@ export PERPLEXITY_API_KEY='YOUR_API_KEY'
 export ANTHROPIC_API_KEY='YOUR_API_KEY'
 export XAI_API_KEY='YOUR_API_KEY'
 export MISTRAL_API_KEY='YOUR_API_KEY'
+export EXA_API_KEY='YOUR_API_KEY'
 ```
 We recommend setting all relevant environment variables in `.env`, which the evaluation code loads automatically.
 
@@ -61,6 +62,15 @@ python research-eval.py generate \
     -o experiments/openai-responses-web.out.jsonl
 ```
 Note: `--web-search` is only supported with the OpenAI Responses API in this script.
+
+Exa Answer API:
+
+```bash
+python research-eval.py generate \
+    --api exa \
+    --model exa \
+    -o experiments/exa-answer.out.jsonl
+```
 
 #### 2. Judge responses
 

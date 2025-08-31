@@ -4,3 +4,4 @@ anthropic
 mistralai
 python-dotenv
 cryptography
+exa_py

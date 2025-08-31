@@ -200,6 +200,23 @@ def generate_mistral(prompt, model, api_key):
         return ''.join([chunk.text for chunk in content if chunk.type == 'text'])
 
 
+def generate_exa(prompt, model, api_key):
+    """Call Exa's Answer API via exa-py SDK using the documented interface.
+
+    - Uses `EXA_API_KEY` for auth (wired by caller).
+    """
+    from exa_py import Exa
+
+    api_base = os.getenv('EXA_API_BASE')
+    exa = Exa(api_key=api_key)
+
+    try:
+        res = exa.answer(query=prompt)
+    except Exception as e:
+        print(f"Exa failed: {e}")
+    return res.answer
+
+
 def generate_with_retry(generate, prompt, model, api_key, trials, validator=None):
     seconds_to_wait = 1
     # exc = None
@@ -280,6 +297,7 @@ API2CONFIG = {
     'google': [generate_google, 'GOOGLE_API_KEY'],
     'anthropic': [generate_anthropic, 'ANTHROPIC_API_KEY'],
     'mistral': [generate_mistral, 'MISTRAL_API_KEY'],
+    'exa': [generate_exa, 'EXA_API_KEY'],
 }
 
 
