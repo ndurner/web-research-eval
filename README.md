@@ -42,6 +42,26 @@ python research-eval.py generate \
     -o experiments/reka-flash-research.out.jsonl
 ```
 
+OpenAI via Chat Completions (existing behavior):
+
+```bash
+python research-eval.py generate \
+    --api openai \
+    --model gpt-4o-mini \
+    -o experiments/openai-chat.out.jsonl
+```
+
+OpenAI via Responses API, optionally with web_search:
+
+```bash
+python research-eval.py generate \
+    --api openai-responses \
+    --model gpt-5-mini \
+    --web-search \
+    -o experiments/openai-responses-web.out.jsonl
+```
+Note: `--web-search` is only supported with the OpenAI Responses API in this script.
+
 #### 2. Judge responses
 
 ```bash

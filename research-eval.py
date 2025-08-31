@@ -60,6 +60,53 @@ def generate_openai(prompt, model, api_key, base_url=None, extra_body=None):
     return message
 
 
+def generate_openai_responses(prompt, model, api_key, use_web_search=False, base_url=None):
+    """Generate using OpenAI Responses API, with optional web_search tool.
+
+    Args:
+        prompt: User input string.
+        model: OpenAI model name.
+        api_key: API key string.
+        use_web_search: If True, enable the web_search tool.
+        base_url: Optional custom base URL (not typically used for OpenAI proper).
+
+    Returns:
+        The assistant's text output.
+    """
+    kwargs = {} if base_url is None else {'base_url': base_url}
+    client = openai.OpenAI(api_key=api_key, **kwargs)
+    create_kwargs = {
+        'model': model,
+        'input': prompt,
+    }
+    if use_web_search:
+        create_kwargs['tools'] = [{'type': 'web_search'}]
+        # Let the model decide when to use tools
+        create_kwargs['tool_choice'] = 'auto'
+    response = client.responses.create(**create_kwargs)
+
+    # Prefer the convenience accessor when available
+    text = getattr(response, 'output_text', None)
+    if text:
+        return text
+
+    # Fallback: try to concatenate any text parts from the response
+    try:
+        parts = []
+        for item in getattr(response, 'output', []) or []:
+            for c in getattr(item, 'content', []) or []:
+                if getattr(c, 'type', '') == 'output_text' and getattr(c, 'text', None):
+                    parts.append(c.text)
+                elif getattr(c, 'type', '') == 'input_text' and getattr(c, 'text', None):
+                    # ignore user echo; only collect assistant output
+                    pass
+        if parts:
+            return ''.join(parts)
+    except Exception:
+        pass
+    raise ValueError('Missing text response from Responses API')
+
+
 def generate_reka(prompt, model, api_key):
     return generate_openai(prompt, model, api_key, 'https://api.reka.ai/v1')
 
@@ -213,6 +260,7 @@ def add_generate_args(parser, default_api=None, default_model=None):
     parser.add_argument('--model', default=default_model, required=default_model is None, help='The model to be used with the selected API provider')
     parser.add_argument('--concurrency', default=30, type=int, help='Number of concurrent calls')
     parser.add_argument('--trials', default=6, type=int, help='How many times to retry for failed requests')
+    parser.add_argument('--web-search', action='store_true', help='Enable web_search tool when supported (OpenAI Responses)')
 
 
 def add_io_args(parser, input=True, output=True, default_input=None, default_output=None):
@@ -225,6 +273,7 @@ def add_io_args(parser, input=True, output=True, default_input=None, default_out
 API2CONFIG = {
     'reka': [generate_reka, 'REKA_API_KEY'],
     'openai': [generate_openai, 'OPENAI_API_KEY'],
+    'openai-responses': [generate_openai_responses, 'OPENAI_API_KEY'],
     'fireworks': [generate_fireworks, 'FIREWORKS_API_KEY'],
     'perplexity': [generate_perplexity, 'PERPLEXITY_API_KEY'],
     'xai': [generate_xai, 'XAI_API_KEY'],
@@ -250,11 +299,23 @@ def main():
     load_dotenv()
 
     if args.command != 'report':
-        generate, api_var = API2CONFIG[args.api]
+        base_generate, api_var = API2CONFIG[args.api]
         api_key = os.getenv(api_var)
         if api_key is None:
             print(f'API key not found, please set the following environment variable: {api_var}', file=sys.stderr)
             sys.exit(-1)
+
+        # Wire optional web_search for OpenAI Responses; warn if requested for Chat Completions
+        if args.api == 'openai-responses':
+            if args.web_search:
+                def generate(prompt, model, api_key):
+                    return generate_openai_responses(prompt, model, api_key, use_web_search=True)
+            else:
+                generate = base_generate
+        else:
+            if args.web_search and args.api == 'openai':
+                print('Note: --web-search is only supported with OpenAI Responses; ignoring for Chat Completions', file=sys.stderr)
+            generate = base_generate
 
     if args.command == 'generate':
         examples = read_jsonl(args.input)
