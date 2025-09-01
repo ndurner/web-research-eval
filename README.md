@@ -109,6 +109,8 @@ python research-eval.py report \
 | Mistral Medium 2505 (w/ web search agent) |  31.5 |  32.51 |
 | Grok 4 (w/ live search)                   |  26.7 |  85.88 |
 
+(Legend: ✦ = reported by Nils Durner)
+
 We report average accuracy across 5 runs. The cost refers to USD per 1,000 requests in the Research-Eval distribution.
 
 
