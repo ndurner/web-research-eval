@@ -96,11 +96,16 @@ python research-eval.py report \
 
 | Model                                     | Score |  Cost  |
 |-------------------------------------------|-------|--------|
+| OpenAI GPT-5 low (w/ web_search) ✦        |  66.6 |   -    |
+| OpenAI o3 Deep Research ✦                 |  63.1 |   -    |
+| OpenAI o4-mini Deep Research ✦            |  61.8 |   -    |
+| OpenAI GPT-5-mini (w/ web_search) ✦       |  60.7 |   -    |
 | Reka Research                             |  59.1 |  25.00 |
 | Gemini 2.0 Flash (w/ Google Search)	    |  54.2 |  35.05 |
 | GPT-4o search preview                     |  53.0 |  37.14 |
 | Claude Sonnet 4 (w/ web search)           |  44.8 | 162.01 |
 | Sonar Reasoning Pro                       |  44.6 |  14.75 |
+| Exa Answers ✦                             |  36.1 |   -    |
 | Mistral Medium 2505 (w/ web search agent) |  31.5 |  32.51 |
 | Grok 4 (w/ live search)                   |  26.7 |  85.88 |
 
